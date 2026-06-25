@@ -1,32 +1,32 @@
 # DockDock Server
 
-Default image download service for DockDock Agent.
+DockDock Agent 的默认镜像下载服务。
 
-## Requirements
+## 环境要求
 
 - Node.js 18+
-- Docker installed and available in PATH
+- 已安装 Docker，且 `docker` 命令在 PATH 中可用
 
-## Install
+## 安装
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-Edit `.env` to adjust the listening port and host if needed.
+按需编辑 `.env`，调整监听端口和地址。
 
-## Run
+## 运行
 
 ```bash
 npm run dev
 ```
 
-Server listens on `http://0.0.0.0:3456` by default.
+Server 默认监听 `http://0.0.0.0:3456`。
 
 ## API
 
-### Request image download
+### 请求下载镜像
 
 ```bash
 POST /api/v1/images/download
@@ -36,7 +36,7 @@ POST /api/v1/images/download
 }
 ```
 
-Response:
+响应：
 
 ```json
 {
@@ -45,25 +45,25 @@ Response:
 }
 ```
 
-### Check status
+### 查看下载状态
 
 ```bash
 GET /api/v1/images/download/:id/status
 ```
 
-### Download file
+### 下载文件
 
 ```bash
 GET /api/v1/images/download/:id/file
 ```
 
-### Search Docker Hub images
+### 搜索 Docker Hub 镜像
 
 ```bash
 GET /api/v1/images/search?q=nginx
 ```
 
-### List image tags on Docker Hub
+### 列出 Docker Hub 镜像标签
 
 ```bash
 GET /api/v1/images/tags/library/nginx
