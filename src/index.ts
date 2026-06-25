@@ -1,6 +1,6 @@
 import { buildServer } from './server';
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3456;
 const HOST = process.env.HOST || '0.0.0.0';
 
 async function main() {

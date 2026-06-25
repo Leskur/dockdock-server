@@ -10,6 +10,7 @@ import {
   CACHE_TTL_MS,
   CacheEntry,
 } from '../services/docker';
+import { searchImages, listTags } from '../services/registry';
 
 interface DownloadBody {
   image: string;
@@ -39,7 +40,8 @@ export default async function imageRoutes(fastify: FastifyInstance) {
   }
 
   fastify.post<{ Body: DownloadBody }>('/download', async (request, reply) => {
-    const { image, tag = 'latest' } = request.body;
+    const { image } = request.body;
+    const tag = request.body.tag || 'latest';
     if (!image || typeof image !== 'string') {
       return reply.status(400).send({ error: 'image is required' });
     }
@@ -78,6 +80,21 @@ export default async function imageRoutes(fastify: FastifyInstance) {
     processJob(job, jobs, imageCache);
 
     return reply.status(202).send({ id, status: job.status });
+  });
+
+  fastify.get('/search', async (request, reply) => {
+    const { q } = request.query as { q?: string };
+    if (!q) {
+      return reply.status(400).send({ error: 'q is required' });
+    }
+    const results = await searchImages(q);
+    return { query: q, results };
+  });
+
+  fastify.get('/tags/:namespace/:repo', async (request, reply) => {
+    const { namespace, repo } = request.params as { namespace: string; repo: string };
+    const results = await listTags(namespace, repo);
+    return { namespace, repo, results };
   });
 
   fastify.get('/download/:id/status', async (request, reply) => {

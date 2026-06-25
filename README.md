@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Server listens on `http://0.0.0.0:3000` by default.
+Server listens on `http://0.0.0.0:3456` by default.
 
 ## API
 
@@ -52,4 +52,16 @@ GET /api/v1/images/download/:id/status
 
 ```bash
 GET /api/v1/images/download/:id/file
+```
+
+### Search Docker Hub images
+
+```bash
+GET /api/v1/images/search?q=nginx
+```
+
+### List image tags on Docker Hub
+
+```bash
+GET /api/v1/images/tags/library/nginx
 ```
