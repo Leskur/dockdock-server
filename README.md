@@ -11,7 +11,10 @@ Default image download service for DockDock Agent.
 
 ```bash
 npm install
+cp .env.example .env
 ```
+
+Edit `.env` to adjust the listening port and host if needed.
 
 ## Run
 

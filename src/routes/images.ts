@@ -93,7 +93,8 @@ export default async function imageRoutes(fastify: FastifyInstance) {
 
   fastify.get('/tags/:namespace/:repo', async (request, reply) => {
     const { namespace, repo } = request.params as { namespace: string; repo: string };
-    const results = await listTags(namespace, repo);
+    const { name } = request.query as { name?: string };
+    const results = await listTags(namespace, repo, name);
     return { namespace, repo, results };
   });
 

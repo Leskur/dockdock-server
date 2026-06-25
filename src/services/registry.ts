@@ -49,10 +49,16 @@ export interface TagResult {
   size?: number;
 }
 
-export async function listTags(namespace: string, repo: string): Promise<TagResult[]> {
+export async function listTags(namespace: string, repo: string, name?: string): Promise<TagResult[]> {
+  const params = new URLSearchParams();
+  params.set('page_size', '50');
+  params.set('ordering', 'last_updated');
+  if (name && name.trim()) {
+    params.set('name', name.trim());
+  }
   const url = `https://hub.docker.com/v2/repositories/${encodeURIComponent(
     namespace
-  )}/${encodeURIComponent(repo)}/tags/?page_size=50&ordering=last_updated`;
+  )}/${encodeURIComponent(repo)}/tags/?${params.toString()}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Docker Hub tags failed: ${res.status}`);
