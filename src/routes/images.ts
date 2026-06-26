@@ -39,7 +39,7 @@ export default async function imageRoutes(fastify: FastifyInstance) {
     }
   }
 
-  fastify.post<{ Body: DownloadBody }>('/download', async (request, reply) => {
+  fastify.post<{ Body: DownloadBody }>('/jobs', async (request, reply) => {
     const { image } = request.body;
     const tag = request.body.tag || 'latest';
     if (!image || typeof image !== 'string') {
@@ -91,14 +91,14 @@ export default async function imageRoutes(fastify: FastifyInstance) {
     return { query: q, results };
   });
 
-  fastify.get('/tags/:namespace/:repo', async (request, reply) => {
+  fastify.get('/:namespace/:repo/tags', async (request, reply) => {
     const { namespace, repo } = request.params as { namespace: string; repo: string };
     const { name } = request.query as { name?: string };
     const results = await listTags(namespace, repo, name);
     return { namespace, repo, results };
   });
 
-  fastify.get('/download/:id/status', async (request, reply) => {
+  fastify.get('/jobs/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     const job = jobs.get(id);
     if (!job) {
@@ -116,7 +116,7 @@ export default async function imageRoutes(fastify: FastifyInstance) {
     };
   });
 
-  fastify.get('/download/:id/file', async (request, reply) => {
+  fastify.get('/jobs/:id/file', async (request, reply) => {
     const { id } = request.params as { id: string };
     const job = jobs.get(id);
     if (!job) {
