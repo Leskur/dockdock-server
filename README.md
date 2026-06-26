@@ -1,70 +1,45 @@
 # DockDock Server
 
-DockDock Agent 的默认镜像下载服务。
+DockDock Server 是 DockDock Agent 的镜像下载服务，部署在能正常访问 Docker Hub 的服务器上。
+
+接收 Agent 的下载请求后，自动拉取镜像并打包成 tar.gz 供 Agent 下载，内置缓存机制避免重复拉取。
+
+## 特性
+
+- 自动拉取 Docker Hub 镜像并打包导出
+- 缓存已下载镜像，减少重复请求
+- 代理 Docker Hub 搜索和标签查询
+- 一键安装，自动注册为系统服务
 
 ## 环境要求
 
-- Node.js 18+
+- Linux x64 / arm64
 - 已安装 Docker，且 `docker` 命令在 PATH 中可用
+- 能正常访问 Docker Hub
 
-## 安装
-
-```bash
-npm install
-cp .env.example .env
-```
-
-按需编辑 `.env`，调整监听端口和地址。
-
-## 运行
+## 一键安装
 
 ```bash
-npm run dev
+curl -fsSL https://raw.githubusercontent.com/Leskur/dockdock-server/main/install.sh | bash
 ```
 
-Server 默认监听 `http://0.0.0.0:3456`。
+安装完成后自动注册为 systemd 服务并启动。
 
-## API
+> 如果无法直接访问 GitHub，可通过代理安装：`curl -fsSL https://raw.githubusercontent.com/Leskur/dockdock-server/main/install.sh | https_proxy=http://127.0.0.1:7890 bash`
 
-### 请求下载镜像
+## 卸载
 
 ```bash
-POST /api/v1/images/download
-{
-  "image": "nginx",
-  "tag": "1.25"
-}
+curl -fsSL https://raw.githubusercontent.com/Leskur/dockdock-server/main/uninstall.sh | bash
 ```
 
-响应：
-
-```json
-{
-  "id": "uuid",
-  "status": "pending"
-}
-```
-
-### 查看下载状态
+## 服务管理
 
 ```bash
-GET /api/v1/images/download/:id/status
+systemctl status dockdock-server    # 查看状态
+systemctl restart dockdock-server   # 重启
+systemctl stop dockdock-server      # 停止
+journalctl -u dockdock-server -f    # 查看日志
 ```
 
-### 下载文件
-
-```bash
-GET /api/v1/images/download/:id/file
-```
-
-### 搜索 Docker Hub 镜像
-
-```bash
-GET /api/v1/images/search?q=nginx
-```
-
-### 列出 Docker Hub 镜像标签
-
-```bash
-GET /api/v1/images/tags/library/nginx
-```
+镜像缓存存储在 `/var/lib/dockdock-server/storage/`。

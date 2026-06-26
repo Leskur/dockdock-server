@@ -1,9 +1,26 @@
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
+import os from 'os';
 import { Job } from '../types';
 
-const STORAGE_DIR = path.join(process.cwd(), 'storage');
+function getDataDir(appName: string): string {
+  const env = process.env.DATA_DIR;
+  if (env) return env;
+
+  const home = os.homedir();
+  switch (process.platform) {
+    case 'win32':
+      return path.join(process.env.APPDATA || home, appName);
+    case 'darwin':
+      return path.join(home, 'Library', 'Application Support', appName);
+    default:
+      return path.join('/var/lib', appName);
+  }
+}
+
+const DATA_DIR = getDataDir('dockdock-server');
+const STORAGE_DIR = path.join(DATA_DIR, 'storage');
 
 export const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -75,6 +92,10 @@ async function processImage(job: Job, jobs: Map<string, Job>, imageCache: Map<st
   await ensureStorageDir();
   const imageTag = `${job.image}:${job.tag}`;
   const filePath = job.filePath || getStoragePath(job.image, job.tag);
+
+  if (!/^[a-zA-Z0-9._/:@-]+$/.test(imageTag)) {
+    throw new Error(`Invalid image tag: ${imageTag}`);
+  }
 
   job.status = 'pulling';
   job.updatedAt = Date.now();

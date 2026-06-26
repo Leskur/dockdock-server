@@ -61,7 +61,6 @@ Requires=docker.service
 
 [Service]
 Type=simple
-WorkingDirectory=${DATA_DIR}
 ExecStart=${INSTALL_DIR}/dockdock-server
 Restart=on-failure
 RestartSec=5
