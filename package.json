@@ -1,6 +1,6 @@
 {
   "name": "dockdock-server",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Default image download service for DockDock Agent",
   "main": "dist/index.js",
   "scripts": {
