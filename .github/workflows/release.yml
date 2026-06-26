@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+            node-arch: linux-x64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            node-arch: linux-arm64
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build SEA blob
+        run: npm run build
+
+      - name: Download Node.js binary
+        run: |
+          NODE_VERSION=$(node -p "process.versions.node")
+          curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${{ matrix.node-arch }}.tar.xz" -o node.tar.xz
+          tar -xJf node.tar.xz
+          cp "node-v${NODE_VERSION}-${{ matrix.node-arch }}/bin/node" dist/dockdock-server
+
+      - name: Inject SEA blob
+        run: npx postject dist/dockdock-server NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --overwrite
+
+      - name: Make executable
+        run: chmod +x dist/dockdock-server
+
+      - name: Package
+        run: |
+          cd dist && tar -czf "../dockdock-server-linux-${{ matrix.arch }}.tar.gz" dockdock-server
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dockdock-server-linux-*.tar.gz
