@@ -65,7 +65,6 @@ ExecStart=${INSTALL_DIR}/dockdock-server
 Restart=on-failure
 RestartSec=5
 Environment=PORT=3456
-Environment=HOST=0.0.0.0
 
 [Install]
 WantedBy=multi-user.target
