@@ -6,7 +6,7 @@ export async function buildServer() {
     logger: true,
   });
 
-  await fastify.register(imageRoutes, { prefix: '/api/v1/images' });
+  await fastify.register(imageRoutes, { prefix: '/images' });
 
   return fastify;
 }
