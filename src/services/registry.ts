@@ -12,7 +12,7 @@ export async function searchImages(query: string): Promise<SearchResult[]> {
   if (!query || !query.trim()) {
     return [];
   }
-  const url = `https://hub.docker.com/api/search/v3/catalog/search?query=${encodeURIComponent(
+  const url = `https://hub.docker.com/v2/search/repositories?query=${encodeURIComponent(
     query.trim()
   )}&page_size=20`;
   const res = await fetch(url);
@@ -21,18 +21,19 @@ export async function searchImages(query: string): Promise<SearchResult[]> {
   }
   const data = (await res.json()) as any;
   return (data.results || [])
-    .filter((item: any) => item.content_types && item.content_types.includes('image'))
     .map((item: any) => {
-      const plan = item.rate_plans?.[0];
-      const repository = plan?.repositories?.[0];
+      const repoName: string = item.repo_name || '';
+      const slashIndex = repoName.indexOf('/');
+      const namespace = slashIndex >= 0 ? repoName.substring(0, slashIndex) : 'library';
+      const repo = slashIndex >= 0 ? repoName.substring(slashIndex + 1) : repoName;
       return {
-        name: item.name,
-        namespace: repository?.namespace || '',
-        repo: repository?.name || '',
-        description: item.short_description || repository?.description || '',
-        isOfficial: !!repository?.is_official,
+        name: repoName,
+        namespace,
+        repo,
+        description: item.short_description || '',
+        isOfficial: !!item.is_official,
         starCount: item.star_count || 0,
-        pullCount: repository?.pull_count || '',
+        pullCount: item.pull_count?.toString() || '',
       };
     })
     .filter((item: SearchResult) => item.namespace && item.repo)
@@ -56,9 +57,9 @@ export async function listTags(namespace: string, repo: string, name?: string): 
   if (name && name.trim()) {
     params.set('name', name.trim());
   }
-  const url = `https://hub.docker.com/v2/repositories/${encodeURIComponent(
+  const url = `https://hub.docker.com/v2/namespaces/${encodeURIComponent(
     namespace
-  )}/${encodeURIComponent(repo)}/tags/?${params.toString()}`;
+  )}/repositories/${encodeURIComponent(repo)}/tags?${params.toString()}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Docker Hub tags failed: ${res.status}`);
