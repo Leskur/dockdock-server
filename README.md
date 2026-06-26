@@ -29,12 +29,14 @@ curl -fsSL https://raw.githubusercontent.com/Leskur/dockdock-server/main/install
 
 ## 离线安装
 
-如果服务器无法下载 GitHub Release 资源，可通过其他设备下载压缩包上传到服务器，再用脚本安装：
+如果服务器无法访问 GitHub，可通过其他设备下载压缩包和 [install.sh](https://raw.githubusercontent.com/Leskur/dockdock-server/main/install.sh)，上传到服务器后用脚本安装：
 
 ```bash
-# 上传压缩包后，远程拉取脚本并传入本地压缩包路径
-curl -fsSL https://raw.githubusercontent.com/Leskur/dockdock-server/main/install.sh | bash -s -- dockdock-server-linux-x64.tar.gz
+# 传入本地压缩包路径作为参数
+bash install.sh dockdock-server-linux-x64.tar.gz
 ```
+
+脚本会自动解压、安装二进制并注册为 systemd 服务。
 
 ## 卸载
 
