@@ -18,24 +18,33 @@ case "$ARCH" in
     ;;
 esac
 
-# Get latest release tag
-echo "Fetching latest release..."
-LATEST_TAG=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | grep -o '"tag_name": *"[^"]*"' | head -1 | cut -d'"' -f4)
-
-if [ -z "$LATEST_TAG" ]; then
-  echo "Failed to fetch latest release tag"
-  exit 1
-fi
-
-echo "Latest version: ${LATEST_TAG}"
-
 ASSET_NAME="dockdock-server-linux-${ASSET_ARCH}.tar.gz"
-DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${ASSET_NAME}"
-
-# Download
 TMP_DIR=$(mktemp -d)
-echo "Downloading from: ${DOWNLOAD_URL}"
-curl -fSL "$DOWNLOAD_URL" -o "${TMP_DIR}/${ASSET_NAME}"
+
+# Download or use local file
+if [ -n "$1" ]; then
+  if [ ! -f "$1" ]; then
+    echo "File not found: $1"
+    exit 1
+  fi
+  echo "Installing from local file: $1"
+  cp "$1" "${TMP_DIR}/${ASSET_NAME}"
+else
+  # Get latest release tag
+  echo "Fetching latest release..."
+  LATEST_TAG=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | grep -o '"tag_name": *"[^"]*"' | head -1 | cut -d'"' -f4)
+
+  if [ -z "$LATEST_TAG" ]; then
+    echo "Failed to fetch latest release tag"
+    exit 1
+  fi
+
+  echo "Latest version: ${LATEST_TAG}"
+
+  DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${ASSET_NAME}"
+  echo "Downloading from: ${DOWNLOAD_URL}"
+  curl -fSL "$DOWNLOAD_URL" -o "${TMP_DIR}/${ASSET_NAME}"
+fi
 
 # Extract
 echo "Extracting..."
